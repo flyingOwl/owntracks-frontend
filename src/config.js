@@ -60,6 +60,7 @@ const DEFAULT_CONFIG = {
     maxNativeZoom: 19,
     maxPointDistance: null,
     maxZoom: 21,
+    movementIconSpeedThreshold: 3,
     polyline: {
       color: null,
       fillColor: "transparent",

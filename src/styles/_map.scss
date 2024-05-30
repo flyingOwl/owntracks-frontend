@@ -9,6 +9,10 @@
       margin-bottom: calc(var(--pin-width) * 1.5 + 20px);
     }
 
+    &--for-movement {
+      margin-bottom: calc(var(--pin-width) * 0.75 + 20px);
+    }
+
     .leaflet-popup-content-wrapper {
       border-radius: 3px;
       box-shadow: none;
@@ -84,6 +88,26 @@
 
         path {
           fill: var(--color-primary);
+        }
+      }
+    }
+
+    .move {
+      display: block;
+      margin-left: calc(-1 * var(--pin-width) / 2);
+      margin-top: calc(-1 * var(--pin-width) * 0.75);
+      position: relative;
+      width: var(--pin-width);
+
+      svg {
+        height: auto;
+        width: 100%;
+
+        path:nth-child(1) {
+          fill: var(--color-primary);
+        }
+        path:nth-child(2) {
+          fill: var(--color-background);
         }
       }
     }

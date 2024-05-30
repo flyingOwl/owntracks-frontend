@@ -38,7 +38,7 @@
         v-for="l in lastLocations"
         :key="`${l.topic}-marker`"
         :lat-lng="[l.lat, l.lon]"
-        :icon="markerIcon"
+        :icon="((typeof l.cog != undefined) && l.vel > movementThreshold) ? movementIcon(l.cog) : markerIcon"
       >
         <LDeviceLocationPopup
           :user="l.username"
@@ -55,7 +55,7 @@
           :speed="l.vel"
           :regions="l.inregions"
           :wifi="{ ssid: l.SSID, bssid: l.BSSID }"
-          :options="{ className: 'leaflet-popup--for-pin', maxWidth: 400 }"
+          :options="{ className: (l.cog && l.vel > 3) ? 'leaflet-popup--for-movement' : 'leaflet-popup--for-pin', maxWidth: 400 }"
           :address="l.addr"
         />
       </LMarker>
@@ -133,7 +133,8 @@ import {
 } from "vue2-leaflet";
 import "leaflet/dist/leaflet.css";
 import * as types from "@/store/mutation-types";
-import LCustomMarker from "@/components/LCustomMarker";
+import LCustomMarkerDefault from "@/components/LCustomMarkerDefault";
+import LCustomMarkerMovement from "@/components/LCustomMarkerMovement";
 import LHeatmap from "@/components/LHeatmap.vue";
 import LDeviceLocationPopup from "@/components/LDeviceLocationPopup.vue";
 
@@ -156,7 +157,9 @@ export default {
       center: this.$store.state.map.center,
       controls: this.$config.map.controls,
       heatmap: this.$config.map.heatmap,
-      markerIcon: LCustomMarker,
+      markerIcon: LCustomMarkerDefault,
+      movementIcon: LCustomMarkerMovement,
+      movementThreshold: this.$config.map.movementIconSpeedThreshold,
       maxZoom: this.$config.map.maxZoom,
       maxNativeZoom: this.$config.map.maxNativeZoom,
       tileSize: this.$config.map.tileSize,
