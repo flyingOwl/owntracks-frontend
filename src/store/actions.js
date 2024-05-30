@@ -4,7 +4,8 @@ import config from "@/config";
 import { log } from "@/logging";
 import {
   distanceBetweenCoordinates,
-  isIsoDateTime,
+  isValidDateTime,
+  getUTCDateString,
   getLocationHistoryCount,
 } from "@/util";
 
@@ -29,11 +30,11 @@ const populateStateFromQuery = ({ state, commit }, query) => {
   if (query.zoom && !isNaN(parseInt(query.zoom))) {
     commit(types.SET_MAP_ZOOM, parseInt(query.zoom));
   }
-  if (query.start && isIsoDateTime(query.start)) {
-    commit(types.SET_START_DATE_TIME, query.start);
+  if (query.start && isValidDateTime(query.start + 'Z')) {
+    commit(types.SET_START_DATE_TIME, new Date(query.start + 'Z'));
   }
-  if (query.end && isIsoDateTime(query.end)) {
-    commit(types.SET_END_DATE_TIME, query.end);
+  if (query.end && isValidDateTime(query.end + 'Z')) {
+    commit(types.SET_END_DATE_TIME, new Date(query.end + 'Z'));
   }
   if (query.user) {
     commit(types.SET_SELECTED_USER, query.user);
@@ -189,8 +190,8 @@ const getLocationHistory = async ({ commit, state }) => {
   try {
     locationHistory = await api.getLocationHistory(
       devices,
-      state.startDateTime,
-      state.endDateTime,
+      getUTCDateString(state.startDateTime),
+      getUTCDateString(state.endDateTime),
       { signal: state.requestAbortController.signal }
     );
   } catch (error) {
@@ -240,7 +241,7 @@ const setSelectedDevice = async ({ commit, dispatch }, device) => {
 /**
  * Set the start date and time for loading data and reload the location history.
  *
- * @param {String} startDateTime Start date and time in UTC for loading data
+ * @param {Date object} startDateTime Start date and time in UTC for loading data
  */
 const setStartDateTime = async ({ commit, dispatch }, startDateTime) => {
   commit(types.SET_START_DATE_TIME, startDateTime);

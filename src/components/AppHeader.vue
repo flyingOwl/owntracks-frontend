@@ -160,7 +160,6 @@
 </template>
 
 <script>
-import moment from "moment";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import {
   ArrowDownIcon,
@@ -180,7 +179,10 @@ import "vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css";
 import DropdownButton from "@/components/DropdownButton.vue";
 import { DATE_TIME_FORMAT } from "@/constants";
 import * as types from "@/store/mutation-types";
-import { humanReadableDistance } from "@/util";
+import {
+  humanReadableDistance,
+  getLocaleDateString,
+} from "@/util";
 
 export default {
   components: {
@@ -236,31 +238,20 @@ export default {
     },
     startDateTime: {
       get() {
-        return moment
-          .utc(this.$store.state.startDateTime, DATE_TIME_FORMAT)
-          .local()
-          .format(DATE_TIME_FORMAT);
+        return getLocaleDateString(this.$store.state.startDateTime);
       },
       set(value) {
-        this.setStartDateTime(
-          moment(value, DATE_TIME_FORMAT).utc().format(DATE_TIME_FORMAT)
-        );
+        this.setStartDateTime(new Date(value));
       },
     },
     endDateTime: {
       get() {
-        return moment
-          .utc(this.$store.state.endDateTime, DATE_TIME_FORMAT)
-          .local()
-          .format(DATE_TIME_FORMAT);
+        return getLocaleDateString(this.$store.state.endDateTime);
       },
       set(value) {
-        this.setEndDateTime(
-          moment(value, DATE_TIME_FORMAT)
-            .set("seconds", 59)
-            .utc()
-            .format(DATE_TIME_FORMAT)
-        );
+        let endDateTime = new Date(value);
+        endDateTime.setSeconds(59);
+        this.setEndDateTime(endDateTime);
       },
     },
   },

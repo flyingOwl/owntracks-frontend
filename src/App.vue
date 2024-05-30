@@ -19,6 +19,7 @@ import AppHeader from "@/components/AppHeader.vue";
 import DownloadModal from "@/components/modals/DownloadModal.vue";
 import InformationModal from "@/components/modals/InformationModal.vue";
 import LoadingModal from "@/components/modals/LoadingModal.vue";
+import { getUTCDateString } from "@/util";
 
 export default {
   components: { AppHeader, DownloadModal, InformationModal, LoadingModal },
@@ -75,8 +76,8 @@ export default {
         lat: map.center.lat,
         lng: map.center.lng,
         zoom: map.zoom,
-        start,
-        end,
+        start: getUTCDateString(start),
+        end: getUTCDateString(end),
         ...(user !== null && { user }),
         ...(user !== null && device !== null && { device }),
         ...(activeLayers.length > 0 && { layers: activeLayers.join(",") }),

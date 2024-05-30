@@ -1,7 +1,5 @@
-import moment from "moment";
-
 import config from "@/config";
-import { DATE_TIME_FORMAT, EARTH_RADIUS_IN_KM } from "@/constants";
+import { EARTH_RADIUS_IN_KM } from "@/constants";
 
 /**
  * Get a complete URL for any API resource, taking the
@@ -19,12 +17,31 @@ export const getApiUrl = (path) => {
 };
 
 /**
- * Check if the given string is an ISO 8601 YYYY-MM-DDTHH:MM:SS datetime.
+ * Check if the given string is a valid datetime.
  *
  * @param {String} s Input value to be tested
- * @returns {Boolean} Whether the input matches the expected format
+ * @returns {Boolean} Whether the input can be parsed
  */
-export const isIsoDateTime = (s) => moment(s, DATE_TIME_FORMAT, true).isValid();
+export const isValidDateTime = (s) => !isNaN(new Date(s));
+
+/**
+ * Return the date as UTC YYYY-MM-DDTHH:mm:ss
+ *
+ * @param {Date object} d date object
+ * @returns {String} Datetime as ISO string
+ */
+export const getUTCDateString = (d) => d.toISOString().slice(0, 19);
+
+/**
+ * Return the date as locale YYYY-MM-DDTHH:mm:ss
+ *
+ * @param {Date object} d date object
+ * @returns {String} Datetime as ISO string
+ */
+export const getLocaleDateString = (d) => {
+  let offset = d.getTimezoneOffset() * 60 * 1000;
+  return getUTCDateString(new Date(d.getTime() - offset));
+}
 
 /**
  * Convert degrees to radians.

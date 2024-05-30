@@ -20,8 +20,8 @@ export default new Vuex.Store({
     selectedUser: config.selectedUser,
     selectedDevice: config.selectedUser !== null ? config.selectedDevice : null,
     // Convert to UTC and get rid of milliseconds
-    startDateTime: config.startDateTime.toISOString().slice(0, 19),
-    endDateTime: config.endDateTime.toISOString().slice(0, 19),
+    startDateTime: config.startDateTime,
+    endDateTime: config.endDateTime,
     map: {
       center: {
         lat: 0,

@@ -34,7 +34,10 @@
 import { mapState } from "vuex";
 import copy from "clipboard-copy";
 
-import { download } from "@/util";
+import {
+  download,
+  getUTCDateString,
+} from "@/util";
 
 export default {
   data() {
@@ -71,8 +74,8 @@ export default {
         null,
         this.options.minifyJson ? 0 : 2
       );
-      const start = this.startDateTime;
-      const end = this.endDateTime;
+      const start = getUTCDateString(this.startDateTime);
+      const end = getUTCDateString(this.endDateTime);
       const user = this.selectedUser ? `_${this.selectedUser}` : "";
       const device = this.selectedDevice ? `_${this.selectedDevice}` : "";
       const filename = `data_${start}_${end}${user}${device}.json`;
