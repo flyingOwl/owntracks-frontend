@@ -58,7 +58,6 @@
           :format="DATE_TIME_FORMAT"
           :color="$config.primaryColor"
           :locale="$config.locale"
-          :max-date="endDateTime"
           :button-now-translation="$t('Now')"
         >
           <button
@@ -73,7 +72,6 @@
           :format="DATE_TIME_FORMAT"
           :color="$config.primaryColor"
           :locale="$config.locale"
-          :min-date="startDateTime"
           :button-now-translation="$t('Now')"
         >
           <button
