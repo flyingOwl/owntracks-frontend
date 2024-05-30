@@ -60,8 +60,8 @@ const populateStateFromQuery = ({ state, commit }, query) => {
 const loadData = async ({ dispatch }) => {
   await dispatch("getUsers");
   await dispatch("getDevices");
-  await dispatch("getLastLocations");
   await dispatch("getLocationHistory");
+  await dispatch("getLastLocations");
   await dispatch("getRecorderVersion");
   await dispatch("connectWebsocket");
 };
@@ -105,6 +105,43 @@ const getDevices = async ({ commit, state }) => {
   commit(types.SET_DEVICES, await api.getDevices(state.users));
 };
 
+const _addLastLocationsToHistory = (state, lastLocations) => {
+  let locationHistory = state.locationHistory;
+  let configStart = state.startDateTime.getTime() / 1000;
+  let configEnd = state.endDateTime.getTime() / 1000;
+  lastLocations.forEach((location) => {
+    let locUser = location.username;
+    let locDevice = location.device;
+    let locTime = location.tst;
+
+    if (!(locUser in locationHistory)) {
+      locationHistory[locUser] = {};
+    }
+    if (!(locDevice in locationHistory[locUser])) {
+      locationHistory[locUser][locDevice] = [];
+    }
+    // locationHistory is sorted, so last element is newest
+    let lastHistory = locationHistory[locUser][locDevice].at(-1);
+    let lastIsNewerThanHistory = (lastHistory === undefined) || (locTime > lastHistory.tst);
+    if (lastIsNewerThanHistory && locTime > configStart && locTime < configEnd) {
+      // because of "locTime > lastHistory.tst", the array stays sorted
+      locationHistory[locUser][locDevice].push(location);
+    }
+  });
+  return locationHistory;
+};
+
+const _updateAndCommitHistory = (commit, locationHistory) => {
+  commit(types.SET_LOCATION_HISTORY, locationHistory);
+  if (config.showDistanceTravelled) {
+    const { distanceTravelled, elevationGain, elevationLoss } =
+      _getTravelStats(locationHistory);
+    commit(types.SET_DISTANCE_TRAVELLED, distanceTravelled);
+    commit(types.SET_ELEVATION_GAIN, elevationGain);
+    commit(types.SET_ELEVATION_LOSS, elevationLoss);
+  }
+};
+
 /**
  * Load last location of the selected user/device.
  */
@@ -121,6 +158,9 @@ const getLastLocations = async ({ commit, state }) => {
     );
   }
   commit(types.SET_LAST_LOCATIONS, lastLocations);
+
+  let locationHistory = _addLastLocationsToHistory(state, lastLocations);
+  _updateAndCommitHistory(commit, locationHistory);
 };
 
 const _getTravelStats = (locationHistory) => {
@@ -200,14 +240,7 @@ const getLocationHistory = async ({ commit, state }) => {
     commit(types.SET_REQUEST_ABORT_CONTROLLER, null);
     commit(types.SET_IS_LOADING, false);
   }
-  commit(types.SET_LOCATION_HISTORY, locationHistory);
-  if (config.showDistanceTravelled) {
-    const { distanceTravelled, elevationGain, elevationLoss } =
-      _getTravelStats(locationHistory);
-    commit(types.SET_DISTANCE_TRAVELLED, distanceTravelled);
-    commit(types.SET_ELEVATION_GAIN, elevationGain);
-    commit(types.SET_ELEVATION_LOSS, elevationLoss);
-  }
+  _updateAndCommitHistory(commit, locationHistory);
 };
 
 /**
