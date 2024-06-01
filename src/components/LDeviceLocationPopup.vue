@@ -12,37 +12,31 @@
       <ul class="info-list">
         <li :title="$t('Timestamp')">
           <ClockIcon size="1x" aria-hidden="true" role="img" />
-          {{ new Date(timestamp * 1000).toLocaleString($config.locale) }}
-          <span v-if="isoLocal && timeZone">
-            <br />
-            <code style="font-size: 0.7rem">
-              {{ isoLocal }}[{{ timeZone }}]
-            </code>
-          </span>
+          <span>{{ popupDate }}</span>
         </li>
         <li :title="$t('Location')">
           <MapPinIcon size="1x" aria-hidden="true" role="img" />
-          {{ lat }}
-          <br />
-          {{ lon }}
-          <br />
-          {{ alt }}m
+          <span>{{ lat.toFixed(5) }}, {{ lon.toFixed(5) }}</span>
+        </li>
+        <li :title="$t('Elevation')">
+          <TrendingUpIcon size="1x" aria-hidden="true" role="img" />
+          <span>{{ alt.toFixed(1) }}&thinsp;m</span>
         </li>
         <li v-if="address" :title="$t('Address')">
           <HomeIcon size="1x" aria-hidden="true" role="img" />
-          {{ address }}
+          <span>{{ address }}</span>
         </li>
         <li v-if="typeof battery === 'number'" :title="$t('Battery')">
           <BatteryIcon size="1x" aria-hidden="true" role="img" />
-          {{ battery }} %
+          <span>{{ battery.toFixed(0) }}&thinsp;%</span>
         </li>
         <li v-if="typeof speed === 'number'" :title="$t('Speed')">
-          <ZapIcon size="1x" aria-hidden="true" role="img" />
-          {{ speed }} km/h
+          <ChevronsRightIcon size="1x" aria-hidden="true" role="img" />
+          <span>{{ speed.toFixed(0) }}&thinsp;km/h</span>
         </li>
         <li v-if="wifi.ssid" :title="$t('WiFi')">
           <WifiIcon size="1x" aria-hidden="true" role="img" />
-          {{ wifi.ssid }}
+          <span>{{ wifi.ssid }}</span>
           <span v-if="wifi.bssid">({{ wifi.bssid }})</span>
         </li>
       </ul>
@@ -61,7 +55,8 @@ import {
   HomeIcon,
   MapPinIcon,
   WifiIcon,
-  ZapIcon,
+  ChevronsRightIcon,
+  TrendingUpIcon,
 } from "vue-feather-icons";
 import { LPopup } from "vue2-leaflet";
 
@@ -73,7 +68,8 @@ export default {
     HomeIcon,
     MapPinIcon,
     WifiIcon,
-    ZapIcon,
+    ChevronsRightIcon,
+    TrendingUpIcon,
     LPopup,
   },
   props: {
@@ -160,6 +156,15 @@ export default {
      */
     deviceName() {
       return this.name ? this.name : `${this.user}/${this.device}`;
+    },
+    popupDate() {
+      return (
+        new Date(this.timestamp * 1000).toLocaleString(this.$config.locale, {
+          weekday: "short",
+        }) +
+        ", " +
+        new Date(this.timestamp * 1000).toLocaleString(this.$config.locale)
+      );
     },
   },
 };
