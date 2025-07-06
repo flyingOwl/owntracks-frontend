@@ -58,6 +58,7 @@
             :key="`${l.topic}-location-${n}`"
             :lat-lng="[l.lat, l.lon]"
             v-bind="circleMarker"
+            pane="overlayPane"
           >
             <LDeviceLocationPopup
               :user="user"
