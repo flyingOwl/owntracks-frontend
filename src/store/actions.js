@@ -79,13 +79,15 @@ const reloadData = async ({ dispatch }) => {
  * received, reload last locations and location history depending on config.
  */
 const connectWebsocket = async ({ dispatch }) => {
-  api.connectWebsocket(async () => {
+  api.connectWebsocket(async (location) => {
     // TODO: keep cards from HTTP API response in the Vuex store so we
     // can use the data from the WebSocket location update (which does
     // not contain card information) and don't have to poll the API.
-    await dispatch("getLastLocations");
     if (config.onLocationChange.reloadHistory) {
+      await dispatch("getLastLocations");
       await dispatch("getLocationHistory");
+    } else {
+      await dispatch("appendLastLocation", location);
     }
   });
 };
@@ -105,6 +107,51 @@ const getDevices = async ({ commit, state }) => {
 };
 
 /**
+ * Add last location to history without loading full history from server
+ */
+const _addLastLocationToHistory = (state, location) => {
+  let locationHistory = state.locationHistory;
+  let configStart = new Date(state.startDateTime).getTime() / 1000;
+  let configEnd = new Date(state.endDateTime).getTime() / 1000;
+
+  let user = location.username;
+  let device = location.device;
+  let timestamp = location.tst;
+
+  if (!(user in locationHistory)) {
+    locationHistory[user] = {};
+  }
+  if (!(device in locationHistory[user])) {
+    locationHistory[user][device] = [];
+  }
+  // locationHistory is sorted, so last element is newest
+  let lastHistory = locationHistory[user][device].at(-1);
+  if (
+    (lastHistory === undefined || timestamp > lastHistory.tst) &&
+    timestamp > configStart &&
+    timestamp < configEnd
+  ) {
+    // because of "timestamp > lastHistory.tst", the array stays sorted
+    locationHistory[user][device].push(location);
+  }
+  return locationHistory;
+};
+
+/**
+ * Commit location history and update travel stats if enabled
+ */
+const _updateAndCommitHistory = (commit, locationHistory) => {
+  commit(types.SET_LOCATION_HISTORY, locationHistory);
+  if (config.showDistanceTravelled) {
+    const { distanceTravelled, elevationGain, elevationLoss } =
+      _getTravelStats(locationHistory);
+    commit(types.SET_DISTANCE_TRAVELLED, distanceTravelled);
+    commit(types.SET_ELEVATION_GAIN, elevationGain);
+    commit(types.SET_ELEVATION_LOSS, elevationLoss);
+  }
+};
+
+/**
  * Load last location of the selected user/device.
  */
 const getLastLocations = async ({ commit, state }) => {
@@ -120,6 +167,20 @@ const getLastLocations = async ({ commit, state }) => {
     );
   }
   commit(types.SET_LAST_LOCATIONS, lastLocations);
+};
+
+const appendLastLocation = async ({ commit, state }, location) => {
+  const index = state.lastLocations.findIndex(
+    (l) => l.user === location.user && l.device === location.device
+  );
+  if (index !== -1) {
+    let lastLocations = [...state.lastLocations];
+    lastLocations.splice(index, 1, location);
+    commit(types.SET_LAST_LOCATIONS, lastLocations);
+
+    let locationHistory = _addLastLocationToHistory(state, location);
+    _updateAndCommitHistory(commit, locationHistory);
+  }
 };
 
 const _getTravelStats = (locationHistory) => {
@@ -199,14 +260,7 @@ const getLocationHistory = async ({ commit, state }) => {
     commit(types.SET_REQUEST_ABORT_CONTROLLER, null);
     commit(types.SET_IS_LOADING, false);
   }
-  commit(types.SET_LOCATION_HISTORY, locationHistory);
-  if (config.showDistanceTravelled) {
-    const { distanceTravelled, elevationGain, elevationLoss } =
-      _getTravelStats(locationHistory);
-    commit(types.SET_DISTANCE_TRAVELLED, distanceTravelled);
-    commit(types.SET_ELEVATION_GAIN, elevationGain);
-    commit(types.SET_ELEVATION_LOSS, elevationLoss);
-  }
+  _updateAndCommitHistory(commit, locationHistory);
 };
 
 /**
@@ -265,6 +319,7 @@ export default {
   getUsers,
   getDevices,
   getLastLocations,
+  appendLastLocation,
   getLocationHistory,
   getRecorderVersion,
   setSelectedUser,

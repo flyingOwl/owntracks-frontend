@@ -221,7 +221,7 @@ export const connectWebsocket = async (callback) => {
         const data = JSON.parse(msg.data);
         if (data._type === "location") {
           log("WS", "Location update received");
-          callback && (await callback());
+          callback && (await callback(data));
         }
       } catch (err) {
         if (msg.data !== "LAST") {
