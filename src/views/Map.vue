@@ -215,9 +215,6 @@ export default {
         this.fitView();
       }
     },
-    filteredLocationHistory() {
-      this.fitView();
-    },
   },
   mounted() {
     this.$root.$on("fitView", () => {
