@@ -52,6 +52,7 @@ interface Config {
         maxNativeZoom: number;
         maxPointDistance: number | null;
         maxZoom: number;
+        pinMoveIconSpeedThreshold: number,
         poiMarker: {
           color: OptionalColor;
           fillColor: OptionalColor;
