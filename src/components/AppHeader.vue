@@ -161,6 +161,7 @@ import {
 
 import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
+import "vue2-datepicker/locale/de";
 
 import DropdownButton from "@/components/DropdownButton.vue";
 import { DATE_TIME_FORMAT } from "@/constants";
