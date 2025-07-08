@@ -64,27 +64,34 @@ const filteredLocationHistoryLatLngGroups = (state) => {
   Object.keys(locationHistory).forEach((user) => {
     Object.keys(locationHistory[user]).forEach((device) => {
       let latLngs = [];
+      let lastTst = 0;
       locationHistory[user][device].forEach((location) => {
         const latLng = L.latLng(location.lat, location.lon);
         // Skip if group splitting is disabled or this is the first
         // coordinate in the current group
-        if (
+        let splitByDistance =
           typeof config.map.maxPointDistance === "number" &&
-          config.map.maxPointDistance > 0 &&
-          latLngs.length > 0
-        ) {
+          config.map.maxPointDistance > 0;
+        let splitByTimeOffset =
+          typeof config.map.maxTimeOffset === "number" &&
+          config.map.maxTimeOffset > 0;
+        if ((splitByDistance || splitByTimeOffset) && latLngs.length > 0) {
           const lastLatLng = latLngs.slice(-1)[0];
+          const distance = distanceBetweenCoordinates(lastLatLng, latLng);
+          const timeOffset = location.tst - lastTst;
           if (
-            distanceBetweenCoordinates(lastLatLng, latLng) >
-            config.map.maxPointDistance
+            (splitByDistance && distance > config.map.maxPointDistance) ||
+            (splitByTimeOffset && timeOffset > config.map.maxTimeOffset)
           ) {
             // Distance is too far, start new group of coordinate
             groups.push(latLngs);
             latLngs = [];
+            lastTst = 0;
           }
         }
         // Add coordinate to current active group
         latLngs.push(latLng);
+        lastTst = location.tst;
       });
       groups.push(latLngs);
     });

@@ -194,6 +194,7 @@ const _getTravelStats = (locationHistory) => {
   Object.keys(locationHistory).forEach((user) => {
     Object.keys(locationHistory[user]).forEach((device) => {
       let lastLatLng = null;
+      let lastTst = 0;
       locationHistory[user][device].forEach((location) => {
         if (
           config.filters.minAccuracy !== null &&
@@ -203,14 +204,20 @@ const _getTravelStats = (locationHistory) => {
         const latLng = L.latLng(location.lat, location.lon, location.alt ?? 0);
         if (lastLatLng !== null) {
           const distance = distanceBetweenCoordinates(lastLatLng, latLng);
+          const timeOffset = location.tst - lastTst;
           const elevationChange = latLng.alt - lastLatLng.alt;
-          if (
+          let splitByDistance =
             typeof config.map.maxPointDistance === "number" &&
-            config.map.maxPointDistance > 0
-              ? // If part of the current group, add to total
-                distance <= config.map.maxPointDistance
-              : // If grouping is disabled, always add to total
-                true
+            config.map.maxPointDistance > 0;
+          let splitByTimeOffset =
+            typeof config.map.maxTimeOffset === "number" &&
+            config.map.maxTimeOffset > 0;
+          if (
+            splitByDistance
+              ? distance <= config.map.maxPointDistance
+              : splitByTimeOffset
+                ? timeOffset < config.map.maxTimeOffset
+                : true
           ) {
             distanceTravelled += distance;
             if (elevationChange >= 0) elevationGain += elevationChange;
@@ -218,6 +225,7 @@ const _getTravelStats = (locationHistory) => {
           }
         }
         lastLatLng = latLng;
+        lastTst = location.tst;
       });
     });
   });

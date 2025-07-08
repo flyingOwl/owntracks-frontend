@@ -60,6 +60,7 @@ const DEFAULT_CONFIG = {
     },
     maxNativeZoom: 19,
     maxPointDistance: null,
+    maxTimeOffset: null,
     maxZoom: 21,
     pinMoveIconSpeedThreshold: 3.0,
     poiMarker: {

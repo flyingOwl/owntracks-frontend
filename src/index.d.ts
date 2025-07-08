@@ -51,6 +51,7 @@ interface Config {
         };
         maxNativeZoom: number;
         maxPointDistance: number | null;
+        maxTimeOffset: number | null;
         maxZoom: number;
         pinMoveIconSpeedThreshold: number,
         poiMarker: {
