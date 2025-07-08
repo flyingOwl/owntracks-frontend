@@ -16,8 +16,9 @@ export default {
   [types.SET_LAST_LOCATIONS](state, lastLocations) {
     state.lastLocations = lastLocations;
   },
-  [types.SET_LOCATION_HISTORY](state, locationHistory) {
-    state.locationHistory = locationHistory;
+  [types.SET_LOCATION_HISTORY](state, payload) {
+    state.triggerFitView = !!payload.triggerFitView;
+    state.locationHistory = payload.locationHistory;
   },
   [types.SET_SELECTED_USER](state, selectedUser) {
     state.selectedUser = selectedUser;

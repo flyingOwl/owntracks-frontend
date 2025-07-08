@@ -208,12 +208,16 @@ export default {
       "filteredLocationHistoryLatLngs",
       "filteredLocationHistoryLatLngGroups",
     ]),
-    ...mapState(["lastLocations", "map"]),
+    ...mapState(["lastLocations", "locationHistory", "map"]),
   },
   watch: {
-    lastLocations() {
-      if (this.$config.onLocationChange.fitView) {
+    locationHistory() {
+      if (
+        this.$store.state.triggerFitView &&
+        this.$config.onLocationChange.fitView
+      ) {
         this.fitView();
+        this.$store.state.triggerFitView = false;
       }
     },
   },

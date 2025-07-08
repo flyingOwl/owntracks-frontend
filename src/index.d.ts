@@ -91,6 +91,7 @@ interface State {
     devices: { User: Device[] };
     lastLocations: OTLocation[];
     locationHistory: LocationHistory;
+    triggerFitView: boolean;
     selectedUser: User | null;
     selectedDevice: Device | null;
     startDateTime: string;

@@ -140,8 +140,11 @@ const _addLastLocationToHistory = (state, location) => {
 /**
  * Commit location history and update travel stats if enabled
  */
-const _updateAndCommitHistory = (commit, locationHistory) => {
-  commit(types.SET_LOCATION_HISTORY, locationHistory);
+const _updateAndCommitHistory = (commit, locationHistory, triggerFitView) => {
+  commit(types.SET_LOCATION_HISTORY, {
+    locationHistory: locationHistory,
+    triggerFitView: triggerFitView,
+  });
   if (config.showDistanceTravelled) {
     const { distanceTravelled, elevationGain, elevationLoss } =
       _getTravelStats(locationHistory);
@@ -179,7 +182,7 @@ const appendLastLocation = async ({ commit, state }, location) => {
     commit(types.SET_LAST_LOCATIONS, lastLocations);
 
     let locationHistory = _addLastLocationToHistory(state, location);
-    _updateAndCommitHistory(commit, locationHistory);
+    _updateAndCommitHistory(commit, locationHistory, false);
   }
 };
 
@@ -260,7 +263,7 @@ const getLocationHistory = async ({ commit, state }) => {
     commit(types.SET_REQUEST_ABORT_CONTROLLER, null);
     commit(types.SET_IS_LOADING, false);
   }
-  _updateAndCommitHistory(commit, locationHistory);
+  _updateAndCommitHistory(commit, locationHistory, true);
 };
 
 /**
