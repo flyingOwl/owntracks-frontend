@@ -62,6 +62,7 @@ const DEFAULT_CONFIG = {
     maxPointDistance: null,
     maxTimeOffset: null,
     maxZoom: 21,
+    overlays: [],
     pinMoveIconSpeedThreshold: 3.0,
     poiMarker: {
       color: "red",

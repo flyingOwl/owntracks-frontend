@@ -25,6 +25,16 @@
       :options="{ maxNativeZoom, maxZoom, zoomOffset }"
     />
 
+    <LTileLayer
+      v-for="o in overlays"
+      :key="o.url"
+      :url="o.url"
+      :attribution="o.attribution"
+      :tile-size="o.tileSize"
+      :opacity="o.opacity || 1"
+      :options="{ maxNativeZoom, maxZoom, zoomOffset }"
+    />
+
     <template v-if="map.layers.line">
       <LPolyline
         v-for="(group, i) in filteredLocationHistoryLatLngGroups"
@@ -181,6 +191,7 @@ export default {
       movementThreshold: this.$config.map.pinMoveIconSpeedThreshold,
       maxZoom: this.$config.map.maxZoom,
       maxNativeZoom: this.$config.map.maxNativeZoom,
+      overlays: this.$config.map.overlays,
       tileSize: this.$config.map.tileSize,
       url: this.$config.map.url,
       zoom: this.$store.state.map.zoom,

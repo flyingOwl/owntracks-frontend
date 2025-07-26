@@ -53,6 +53,7 @@ interface Config {
         maxPointDistance: number | null;
         maxTimeOffset: number | null;
         maxZoom: number;
+        overlays: object[];
         pinMoveIconSpeedThreshold: number,
         poiMarker: {
           color: OptionalColor;
